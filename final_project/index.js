@@ -3,10 +3,18 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
+const cors = require("cors");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+
+// Log all incoming requests
+app.use((req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.url} from ${req.ip}`);
+    next();
+});
 
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
