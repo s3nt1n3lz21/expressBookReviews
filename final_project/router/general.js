@@ -21,8 +21,8 @@ public_users.post("/register", (req,res) => {
   if (users.includes(username)) {
     return res.status(409).json({message: "User with this username already exists"});
   } else {
-    // users.push({});
-    return res.send("User added");
+    users.push({"username": username, "password": password});
+    return res.status(200).json({message: "User successfully registered. Now you can login"});
   }
 });
 
