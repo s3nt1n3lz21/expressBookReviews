@@ -4,7 +4,6 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-
 public_users.post("/register", (req,res) => {
   //Write your code here
   const username = req.body.username;
@@ -26,10 +25,22 @@ public_users.post("/register", (req,res) => {
   }
 });
 
+function getBooks() {
+    return new Promise((resolve, reject) => {
+        // Simulate success response
+        resolve(books);
+    });
+}
+
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.send(JSON.stringify(books, null, 4));
+    getBooks()
+        .then((books) => {
+            res.send(JSON.stringify(books, null, 4));
+        })
+        .catch((error) => {
+            res.status(500).json({ message: "Failed to fetch books", error });
+        });
 });
 
 // Get book details based on ISBN
