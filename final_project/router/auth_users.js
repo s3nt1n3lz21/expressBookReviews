@@ -33,13 +33,14 @@ regd_users.post("/login", (req,res) => {
     if (authenticatedUser(username, password)) {
         // Generate JWT access token
         let accessToken = jwt.sign({
-            data: password
+            data: password,
+            username,
         }, 'access', { expiresIn: 60 * 60 });
         // Store access token and username in session
         req.session.authorization = {
             accessToken, username
         }
-        return res.status(200).send("User successfully logged in");
+        return res.status(200).send("User successfully logged in, token: " + accessToken);
     } else {
         return res.status(208).json({ message: "Invalid Login. Check username and password" });
     }
@@ -48,7 +49,32 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  console.log(req)
+  console.log(req.user)
+
+  if (!req.user || !req.user.username) {
+    return res.status(200).json({ message: "No username found" });
+  }
+
+  const username = req.user.username;
+  const query = req.query;
+  const review = query.review;
+  const isbn = req.params.isbn;
+  const book = books[isbn];
+
+  if (!review) {
+    return res.status(200).json({ message: "Please enter a review" });
+  }
+
+  if (!book) {
+    return res.status(200).json({ message: "Book not found" });
+  }
+
+  const newBook = {...book}
+
+  newBook.reviews[username] = review;
+  books[isbn] = newBook;
+  return res.status(200).json({ message: `Updated review of book with ISBN ${isbn} for user ${username}` });
 });
 
 module.exports.authenticated = regd_users;
