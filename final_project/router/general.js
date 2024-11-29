@@ -67,20 +67,37 @@ public_users.get('/isbn/:isbn', function (req, res) {
         });
 });
   
+function getBooksByAuthor(author) {
+    return new Promise((resolve, reject) => {
+        const keys = Object.keys(books);
+        const matchingBooks = [];
+
+        for (const key of keys) {
+            const item = books[key];
+            if (item.author === author) {
+                matchingBooks.push(item);
+            }
+        }
+
+        if (matchingBooks.length > 0) {
+            resolve(matchingBooks); // Successfully found matching books
+        } else {
+            reject(`No books found for author: ${author}`); // Error if no books are found
+        }
+    });
+}
+
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  let author = req.params.author;
-  let keys = Object.keys(books)
-  let matchingBooks = []
-  for (let index = 0; index < keys.length; index++) {
-    const key = keys[index];
-    const item = books[key];
-    if (item.author == author) {
-        matchingBooks.push(item);
-    }
-  }
-  return res.send(JSON.stringify(matchingBooks, null, 4));
+public_users.get('/author/:author', function (req, res) {
+    const author = req.params.author;
+
+    getBooksByAuthor(author)
+        .then((matchingBooks) => {
+            res.send(JSON.stringify(matchingBooks, null, 4));
+        })
+        .catch((error) => {
+            res.status(404).json({ message: error });
+        });
 });
 
 // Get all books based on title
