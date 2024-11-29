@@ -43,13 +43,29 @@ public_users.get('/',function (req, res) {
         });
 });
 
+function getBookByISBN(isbn) {
+    return new Promise((resolve, reject) => {
+        const book = books[isbn];
+        if (book) {
+            resolve(book); // Successfully found the book
+        } else {
+            reject(`No book found with ISBN: ${isbn}`); // Error if the book is not found
+        }
+    });
+}
+
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  let isbn = req.params.isbn;
-  let book = books[isbn];
-  return res.send(JSON.stringify(book, null, 4));
- });
+public_users.get('/isbn/:isbn', function (req, res) {
+    const isbn = req.params.isbn;
+
+    getBookByISBN(isbn)
+        .then((book) => {
+            res.send(JSON.stringify(book, null, 4));
+        })
+        .catch((error) => {
+            res.status(404).json({ message: error });
+        });
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
